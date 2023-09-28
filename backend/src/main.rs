@@ -1,7 +1,7 @@
 use std::net::SocketAddr;
 //SocketAddr is a type that represents a socket address, which is a combination of an IP address 
 //and a port number
-use axum::{Router, routing::get, extract::State};
+use axum::{Router, routing::get, extract::State, Json};
 //axum is a web framework that is built on top of hyper, the low-level HTTP library for Rust
 use axum_error::Result;
 //axum_error is a crate that provides a custom error type for axum applications
@@ -40,15 +40,17 @@ async fn main() -> Result<()>{
 #[derive(Serialize, Deserialize)]
 struct Todo{
     id: i32,
-    tittle: String,
+    title: String,
     description: String,
     done: bool
 }
 
 
 
-async fn list(State(pool): State<SqlitePool>) -> String {
-    format!("Hello, World!")
+async fn list(State(pool): State<SqlitePool>) -> Result<Json<Vec<Todo>>> {
+    let todos = sqlx::query_as!(Todo, "SELECT id, title, description, done FROM todos ORDER BY id").fetch_all(&pool).await?;
+    Ok(Json(todos))
+//
 }
 
 
