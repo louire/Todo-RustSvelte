@@ -23,8 +23,9 @@ async fn main() -> Result<()>{
     let pool = SqlitePool::connect(&url).await?;
 
     //Create router for server
-    let app = Router::new().route("/", get(list)).
-                            with_state(pool).layer(CorsLayer::very_permissive());
+    let app = Router::new().route("/", get(list))
+                                    .with_state(pool)
+                                    .layer(CorsLayer::very_permissive());
     //with_state() is used to pass the database pool to the handler
     let address = SocketAddr::from(([0, 0, 0, 0], 5050));
     //ok() is used to convert the Result<T, E> to Result<T, Infallible>
@@ -39,10 +40,10 @@ async fn main() -> Result<()>{
 
 #[derive(Serialize, Deserialize)]
 struct Todo{
-    id: i32,
+    id: i64,
     title: String,
     description: String,
-    done: bool
+    done: bool,
 }
 
 
