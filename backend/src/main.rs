@@ -27,7 +27,7 @@ async fn main() -> Result<()>{
                                     .with_state(pool)
                                     .layer(CorsLayer::very_permissive());
     //with_state() is used to pass the database pool to the handler
-    let address = SocketAddr::from(([0, 0, 0, 0], 5050));
+    let address = SocketAddr::from(([0, 0, 0, 0], 5080));
     //ok() is used to convert the Result<T, E> to Result<T, Infallible>
     Ok((axum::Server::bind(&address)
     .serve(app.into_make_service())
@@ -41,17 +41,19 @@ async fn main() -> Result<()>{
 #[derive(Serialize, Deserialize)]
 struct Todo{
     id: i64,
-    title: String,
     description: String,
     done: bool,
 }
+//derive is used to automatically implement traits for structs
 
 
 
 async fn list(State(pool): State<SqlitePool>) -> Result<Json<Vec<Todo>>> {
-    let todos = sqlx::query_as!(Todo, "SELECT id, title, description, done FROM todos ORDER BY id").fetch_all(&pool).await?;
+    // List all notes
+    let todos = sqlx::query_as!(Todo, "SELECT id, description, done FROM todos ORDER BY id")
+        .fetch_all(&pool)
+        .await?;
     Ok(Json(todos))
-//
 }
 
 
