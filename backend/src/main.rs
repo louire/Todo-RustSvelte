@@ -1,16 +1,16 @@
 use std::net::SocketAddr;
 //SocketAddr is a type that represents a socket address, which is a combination of an IP address 
 //and a port number
-use axum::{Router, routing::get};
+use axum::{Router, routing::get, extract::State};
 //axum is a web framework that is built on top of hyper, the low-level HTTP library for Rust
 use axum_error::Result;
-
 //axum_error is a crate that provides a custom error type for axum applications
-use sqlx::sqlite::SqlitePool;
+use sqlx::{sqlite::SqlitePool, pool};
 //sqlx is a database toolkit for Rust . . . maybe i dont need this comment but i'll leave it here for now
-
 use tower_http::cors::CorsLayer;
 //tower_http is a crate that provides middleware for HTTP applications
+use serde::{Serialize, Deserialize};
+//serde is a crate that provides a framework for serializing and deserializing Rust data structures
 
 #[tokio::main]
 
@@ -23,7 +23,7 @@ async fn main() -> Result<()>{
     let pool = SqlitePool::connect(&url).await?;
 
     //Create router for server
-    let app = Router::new().route("/", get(index)).
+    let app = Router::new().route("/", get(list)).
                             with_state(pool).layer(CorsLayer::very_permissive());
     //with_state() is used to pass the database pool to the handler
     let address = SocketAddr::from(([0, 0, 0, 0], 5050));
@@ -36,8 +36,19 @@ async fn main() -> Result<()>{
     
 }
 
-async fn index() -> &'static str {
-    "Hello, World!"
+
+#[derive(Serialize, Deserialize)]
+struct Todo{
+    id: i32,
+    tittle: String,
+    description: String,
+    done: bool
+}
+
+
+
+async fn list(State(pool): State<SqlitePool>) -> String {
+    format!("Hello, World!")
 }
 
 
