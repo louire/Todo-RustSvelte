@@ -1,3 +1,6 @@
+#WORKING ON A BETTER README FILE, JUST FINISHED
+
+
 # Todo-RustSvelte
 crazy fkng god mode
 
