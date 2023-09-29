@@ -1,7 +1,7 @@
 use std::net::SocketAddr;
 //SocketAddr is a type that represents a socket address, which is a combination of an IP address 
 //and a port number
-use axum::{Router, routing::get, extract::State, Json};
+use axum::{Router, routing::{get, post}, extract::{State, Path}, Json, Form};
 //axum is a web framework that is built on top of hyper, the low-level HTTP library for Rust
 use axum_error::Result;
 //axum_error is a crate that provides a custom error type for axum applications
@@ -23,11 +23,16 @@ async fn main() -> Result<()>{
     let pool = SqlitePool::connect(&url).await?;
 
     //Create router for server
-    let app = Router::new().route("/", get(list))
+    let app = Router::new()
+                                    .route("/", get(list))
+                                    .route("/create", get(create))
+                                    .route("/delete/:id", get(delete))
+                                    .route("/update", get(update))
                                     .with_state(pool)
                                     .layer(CorsLayer::very_permissive());
     //with_state() is used to pass the database pool to the handler
-    let address = SocketAddr::from(([0, 0, 0, 0], 5080));
+    let address = SocketAddr::from(([0, 0, 0, 0], 9090));
+    println!("Starting server on http://{address}");
     //ok() is used to convert the Result<T, E> to Result<T, Infallible>
     Ok((axum::Server::bind(&address)
     .serve(app.into_make_service())
@@ -46,6 +51,10 @@ struct Todo{
 }
 //derive is used to automatically implement traits for structs
 
+#[derive(Deserialize)]
+struct NewTodo{
+    description: String,
+}
 
 
 async fn list(State(pool): State<SqlitePool>) -> Result<Json<Vec<Todo>>> {
@@ -56,4 +65,18 @@ async fn list(State(pool): State<SqlitePool>) -> Result<Json<Vec<Todo>>> {
     Ok(Json(todos))
 }
 
+async fn create(State(pool): State<SqlitePool>, Form(todo): Form<NewTodo>) -> Result<String> {
+    sqlx::query!("INSERT INTO todos (description) VALUES (?)", todo.description).execute(&pool).await?;
+    Ok(format!("Created todo with description: {}", todo.description))
+}
 
+async fn delete(State(pool): State<SqlitePool>, Path(id): Path<i64>) -> Result<String> {
+    sqlx::query!("DELETE FROM todos WHERE id = ?", id).execute(&pool).await?;
+    Ok(format!("Deleted todo with id: {}", id))
+}
+
+async fn update(State(pool): State<SqlitePool>, Form(todo): Form<Todo>) -> Result<String> {
+
+    sqlx::query!("UPDATE todos SET description = ?, done = ? WHERE id = ?", todo.description, todo.done, todo.id).execute(&pool).await?;
+    Ok(format!("Succesfully Updated todo with id: {}", todo.id))
+}
