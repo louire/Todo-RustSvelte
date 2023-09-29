@@ -31,7 +31,7 @@ async fn main() -> Result<()>{
                                     .with_state(pool)
                                     .layer(CorsLayer::very_permissive());
     //with_state() is used to pass the database pool to the handler
-    let address = SocketAddr::from(([0, 0, 0, 0], 9090));
+    let address = SocketAddr::from(([0, 0, 0, 0], 9990));
     println!("Starting server on http://{address}");
     //ok() is used to convert the Result<T, E> to Result<T, Infallible>
     Ok((axum::Server::bind(&address)
