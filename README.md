@@ -1,5 +1,6 @@
 # WORKING ON A BETTER README FILE, JUST FINISHED
 
+Note: This is a work in progress. 🏗️🚧
 
 # Todo-RustSvelte
 crazy fkng god mode
