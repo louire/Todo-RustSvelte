@@ -1,15 +1,25 @@
 [package]
-name = "backend"
+name = "todo"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.release]
+lto = true
+strip = true
 
 [dependencies]
-axum = { version = "0.6.20", features = ["form"] }
-axum-error = "0.2.0"
-dotenv = "0.15.0"
-serde = { version = "1.0.188", features = ["derive"] }
-sqlx = { version = "0.7.2", features = ["runtime-tokio", "tls-rustls", "sqlite"] }
-tokio = { version = "1.32.0", features = ["full"] }
-tower-http = { version = "0.4.4", features = ["cors"] }
+# axum
+axum-error = "0.2"
+axum = { version = "0.6", features = ["form"] }
+tower-http = { version = "0.4.1", features = ["cors"] }
+
+# async
+tokio = { version = "1.29", features = ["full"] }
+
+# database
+dotenv = "0.15"
+libsqlite3-sys = { version = "*", features = ["bundled"] } 
+sqlx = { version = "0.7", features = ["runtime-tokio", "tls-rustls", "sqlite"] }
+
+# serialization
+serde = { version = "1.0", features = ["derive"] }
