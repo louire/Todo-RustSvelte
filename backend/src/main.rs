@@ -28,7 +28,7 @@ async fn main() -> Result<()> {
         .layer(CorsLayer::very_permissive());
 
     // Start server!
-    let address = SocketAddr::from(([0, 0, 0, 0], 8000));
+    let address = SocketAddr::from(([0, 0, 0, 0], 8080));
     println!("Starting server on http://{address}");
     Ok(axum::Server::bind(&address)
         .serve(app.into_make_service())

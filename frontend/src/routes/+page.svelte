@@ -5,15 +5,27 @@
   export let data: PageData;
   let todos = data.todos;
 
-  // Delete todo
-  async function deleteTodo(id: number) {
-    await fetch(`http://0.0.0.0:8000/delete/${id}`, { method: "POST" });
-    todos = todos.filter((todo) => todo.id !== id);
+  // Edit todo
+  let editingTodo: Todo | null = null;
+
+  function startEditing(todo: Todo) {
+    editingTodo = todo;
+  }
+
+  function saveEdit() {
+    if (editingTodo) {
+      // Update the local todo without making a server request
+      editingTodo = null;
+    }
   }
 
   // Update todo
   async function updateTodo(todo: Todo) {
-    await fetch(`http://0.0.0.0:8000/update?id=${todo.id}&description=${todo.description}&done=${todo.done}`);
+    if (editingTodo === todo) {
+      // Make a server request only if it's the edited todo
+      await fetch(`http://0.0.0.0:8000/update?id=${todo.id}&description=${todo.description}&done=${todo.done}`);
+      editingTodo = null;
+    }
   }
 </script>
 
@@ -21,7 +33,7 @@
   <h1 class="h1 text-center">TODO 'S'</h1>
 
   <div class="max-w-screen-md mx-auto">
-    <form action="http://0.0.0.0:8000/create" method="POST">
+    <form action="http://0.0.0.0:8080/create" method="POST">
       <input
         class="input p-4 my-8"
         name="description"
@@ -40,13 +52,13 @@
             bind:checked={todo.done}
             on:change={updateTodo(todo)}
           />
-          <input class="input" type="text" bind:value={todo.description} disabled={todo.done} />
-
-          <div class="flex gap-2">
-            <button class="btn variant-filled-secondary" on:click={updateTodo(todo)}>Update</button>
-            <button class="btn variant-filled-primary" on:click={deleteTodo(todo.id)}>Delete</button
-            >
-          </div>
+          {#if editingTodo === todo}
+            <input class="input" type="text" bind:value={todo.description} on:blur={saveEdit} />
+            <button class="btn variant-filled-primary" on:click={updateTodo(todo)}>Update</button>
+          {:else}
+            <input class="input" type="text" bind:value={todo.description} disabled={todo.done} />
+            <button class="btn variant-filled-secondary" on:click={() => startEditing(todo)}>Edit</button>
+          {/if}
         </div>
       {/each}
     </div>
