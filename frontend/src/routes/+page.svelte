@@ -18,7 +18,7 @@
 </script>
 
 <div class="container mx-auto mt-16">
-  <h1 class="h1 text-center">Todos</h1>
+  <h1 class="h1 text-center">TODO 'S'</h1>
 
   <div class="max-w-screen-md mx-auto">
     <form action="http://0.0.0.0:8000/create" method="POST">
