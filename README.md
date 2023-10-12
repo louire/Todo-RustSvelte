@@ -1,4 +1,4 @@
-# todo
+# TODO RUST🦀SVELTE
 
 The web application being developed uses the Rust and SvelteKit stack.
 
